@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const API_KEY = "AIzaSyCQKNDGdZE0cvv2Zxx-id0kdZEHUUUojo8";
+// const API_KEY = "" ;
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
 const Chatbot = () => {
