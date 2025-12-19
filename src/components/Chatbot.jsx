@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
-// const API_KEY = "" ;
+const API_KEY = "AIzaSyCQKNDGdZE0cvv2Zxx-id0kdZEHUUUojo8"; 
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
 const Chatbot = () => {
@@ -9,13 +9,21 @@ const Chatbot = () => {
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const chatBoxRef = useRef(null);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    if (chatBoxRef.current) {
+      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   const sendToGemini = async (userInput) => {
     const requestBody = {
       contents: [
         {
-          parts: [{ text: userInput }],
           role: "user",
+          parts: [{ text: userInput }],
         },
       ],
     };
@@ -29,18 +37,25 @@ const Chatbot = () => {
         body: JSON.stringify(requestBody),
       });
 
+      if (!response.ok) {
+        console.error("Error response from API:", response.statusText);
+        return "Oops! Couldn't get a response from Gemini.";
+      }
+
       const data = await response.json();
+
       const botMessage =
-        data?.candidates?.[0]?.content?.parts?.[0]?.text || "I couldn't get a response.";
+        data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+        "Hmm... I couldn't generate a response.";
       return botMessage;
     } catch (error) {
       console.error("Gemini API error:", error);
-      return "Sorry, something went wrong!";
+      return "Sorry, something went wrong while talking to Gemini.";
     }
   };
 
   const handleSend = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || loading) return;
 
     const userMessage = { sender: "user", text: input };
     setMessages((prev) => [...prev, userMessage]);
@@ -54,15 +69,15 @@ const Chatbot = () => {
 
   return (
     <div style={styles.container}>
-      <h2 style={styles.header}> Help Corner</h2>
-      <div style={styles.chatBox}>
+      <h2 style={styles.header}>Help Corner</h2>
+      <div ref={chatBoxRef} style={styles.chatBox}>
         {messages.map((msg, index) => (
           <div
             key={index}
             style={{
               ...styles.message,
               alignSelf: msg.sender === "user" ? "flex-end" : "flex-start",
-              backgroundColor: msg.sender === "user" ? "#4caf50" : "#444",
+              backgroundColor: msg.sender === "user" ? "#4caf50" : "#333",
             }}
           >
             {msg.text}
@@ -78,8 +93,11 @@ const Chatbot = () => {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSend()}
           style={styles.input}
+          disabled={loading}
         />
-        <button onClick={handleSend} style={styles.button}>Send</button>
+        <button onClick={handleSend} style={styles.button} disabled={loading}>
+          Send
+        </button>
       </div>
     </div>
   );
@@ -140,9 +158,8 @@ const styles = {
   },
   loading: {
     fontStyle: "italic",
-    color: "#aaa",
+    color: "#ccc",
     fontSize: "14px",
-    marginLeft: "10px",
   },
 };
 

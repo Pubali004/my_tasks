@@ -78,11 +78,9 @@ const Landing = () => {
             </div>
           </div>
         </section>
-
-        {/* Footer */}
-        <footer className="footer">
-          <p>© 2025 JobEasy. All rights reserved.</p>
-        </footer>
+    
+      
+        
       </div>
     </div>
   );

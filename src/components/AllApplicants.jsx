@@ -11,16 +11,17 @@ const AllApplicants = () => {
     setApplicants(storedApplications);
   }, []);
 
-  // Filtered list based on name, job role, or company
+  // Delete a single applicant
+  const deleteApplicant = (indexToDelete) => {
+    const updatedApplicants = applicants.filter((_, index) => index !== indexToDelete);
+    setApplicants(updatedApplicants);
+    localStorage.setItem("applications", JSON.stringify(updatedApplicants));
+  };
+
   const filteredApplicants = applicants.filter(applicant =>
     [applicant.name, applicant.jobRole, applicant.companyName]
       .some(field => field.toLowerCase().includes(filterText.toLowerCase()))
   );
-
-  const clearAllData = () => {
-    localStorage.clear();
-    setApplicants([]);
-  };
 
   return (
     <div style={{
@@ -75,7 +76,8 @@ const AllApplicants = () => {
                   padding: "8px 12px",
                   borderRadius: "5px",
                   textDecoration: "none",
-                  fontWeight: "bold"
+                  fontWeight: "bold",
+                  marginRight: "10px"
                 }}
               >
                 Download Resume
@@ -83,6 +85,21 @@ const AllApplicants = () => {
             ) : (
               <p style={{ color: "gray", marginTop: "8px" }}>No resume uploaded.</p>
             )}
+
+            <button
+              onClick={() => deleteApplicant(applicants.indexOf(applicant))}
+              style={{
+                marginTop: "10px",
+                backgroundColor: "#dc3545",
+                color: "white",
+                padding: "8px 12px",
+                border: "none",
+                borderRadius: "5px",
+                cursor: "pointer"
+              }}
+            >
+              Delete
+            </button>
           </div>
         ))
       ) : (
@@ -105,24 +122,6 @@ const AllApplicants = () => {
         }}
       >
         Back
-      </button>
-
-      <button
-        onClick={clearAllData}
-        style={{
-          display: "block",
-          width: "100%",
-          padding: "10px",
-          marginTop: "10px",
-          backgroundColor: "#dc3545",
-          color: "white",
-          fontSize: "16px",
-          border: "none",
-          borderRadius: "5px",
-          cursor: "pointer"
-        }}
-      >
-        Clear All Data
       </button>
     </div>
   );
